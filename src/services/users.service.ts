@@ -14,7 +14,7 @@ class UserService extends Repository<UserEntity> {
   }
 
   public async findUserById(userId: number): Promise<User> {
-    if (isEmpty(userId)) throw new HttpException(400, "UserId is empty");
+    if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
@@ -23,7 +23,7 @@ class UserService extends Repository<UserEntity> {
   }
 
   public async createUser(userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "userData is empty");
+    if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { email: userData.email } });
     if (findUser) throw new HttpException(409, `This email ${userData.email} already exists`);
@@ -35,7 +35,7 @@ class UserService extends Repository<UserEntity> {
   }
 
   public async updateUser(userId: number, userData: CreateUserDto): Promise<User> {
-    if (isEmpty(userData)) throw new HttpException(400, "userData is empty");
+    if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
@@ -48,7 +48,7 @@ class UserService extends Repository<UserEntity> {
   }
 
   public async deleteUser(userId: number): Promise<User> {
-    if (isEmpty(userId)) throw new HttpException(400, "UserId is empty");
+    if (isEmpty(userId)) throw new HttpException(400, 'UserId is empty');
 
     const findUser: User = await UserEntity.findOne({ where: { id: userId } });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
