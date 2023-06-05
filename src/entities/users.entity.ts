@@ -9,6 +9,22 @@ export class UserEntity extends BaseEntity implements User {
 
   @Column()
   @IsNotEmpty()
+  firstName: string;
+
+  @Column()
+  @IsNotEmpty()
+  lastName: string;
+
+  @Column()
+  @IsNotEmpty()
+  address: string;
+
+  @Column()
+  @IsNotEmpty()
+  phone: string;
+
+  @Column()
+  @IsNotEmpty()
   @Unique(['email'])
   email: string;
 
@@ -17,10 +33,14 @@ export class UserEntity extends BaseEntity implements User {
   password: string;
 
   @Column()
-  @CreateDateColumn()
-  createdAt: Date;
+  @IsNotEmpty()
+  isManager: boolean;
 
   @Column()
-  @UpdateDateColumn()
-  updatedAt: Date;
+  @IsNotEmpty()
+  isActif: boolean;
+
+  @Column()
+  @CreateDateColumn()
+  createdAt: Date;
 }
