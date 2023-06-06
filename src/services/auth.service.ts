@@ -2,7 +2,7 @@ import { compare, hash } from 'bcrypt';
 import { sign } from 'jsonwebtoken';
 import { EntityRepository, Repository } from 'typeorm';
 import { SECRET_KEY } from '@config';
-import { CreateUserDto } from '@dtos/users.dto';
+import { CreateLoginDto, CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entities/users.entity';
 import { HttpException } from '@exceptions/HttpException';
 import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
@@ -19,22 +19,26 @@ class AuthService extends Repository<UserEntity> {
 
     const hashedPassword = await hash(userData.password, 10);
     const createUserData: User = await UserEntity.create({ ...userData, password: hashedPassword }).save();
+    delete createUserData.password;
+
     return createUserData;
   }
 
-  public async login(userData: CreateUserDto): Promise<{ cookie: string; findUser: User }> {
-    if (isEmpty(userData)) throw new HttpException(400, 'userData is empty');
+  public async login(loginData: CreateLoginDto): Promise<{ cookie: string; tokenData: TokenData; findUser: User }> {
+    if (isEmpty(loginData)) throw new HttpException(400, 'userData is empty');
 
-    const findUser: User = await UserEntity.findOne({ where: { email: userData.email } });
-    if (!findUser) throw new HttpException(409, `This email ${userData.email} was not found`);
+    const findUser: User = await UserEntity.findOne({ where: { email: loginData.email } });
+    if (!findUser) throw new HttpException(409, `This email ${loginData.email} was not found`);
 
-    const isPasswordMatching: boolean = await compare(userData.password, findUser.password);
+    const isPasswordMatching: boolean = await compare(loginData.password, findUser.password);
     if (!isPasswordMatching) throw new HttpException(409, 'Password not matching');
 
     const tokenData = this.createToken(findUser);
     const cookie = this.createCookie(tokenData);
 
-    return { cookie, findUser };
+    delete findUser.password;
+
+    return { cookie, tokenData, findUser };
   }
 
   public async logout(userData: User): Promise<User> {
@@ -49,7 +53,7 @@ class AuthService extends Repository<UserEntity> {
   public createToken(user: User): TokenData {
     const dataStoredInToken: DataStoredInToken = { id: user.id };
     const secretKey: string = SECRET_KEY;
-    const expiresIn: number = 60 * 60;
+    const expiresIn: number = 3600 * 8;
 
     return { expiresIn, token: sign(dataStoredInToken, secretKey, { expiresIn }) };
   }

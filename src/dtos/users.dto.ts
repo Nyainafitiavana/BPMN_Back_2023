@@ -25,3 +25,11 @@ export class CreateUserDto {
   @IsBoolean()
   public isActif: boolean;
 }
+
+export class CreateLoginDto {
+  @IsEmail()
+  public email: string;
+
+  @IsString()
+  public password: string;
+}
