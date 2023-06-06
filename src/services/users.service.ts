@@ -11,6 +11,7 @@ class UserService extends Repository<UserEntity> {
   public async findAllUser(limit: number, offset: number, key: string): Promise<{ user: User[]; count: number }> {
     if (key === '') {
       const [user, count]: [User[], number] = await UserEntity.createQueryBuilder('qb')
+        .select(['qb.id', 'qb.firstName', 'qb.lastName', 'qb.address', 'qb.email', 'qb.phone', 'qb.isManager', 'qb.isActif', 'qb.createdAt'])
         .limit(limit ? limit : 0)
         .offset(offset ? offset : 0)
         .orderBy('qb.id', 'ASC')
@@ -25,6 +26,7 @@ class UserService extends Repository<UserEntity> {
 
   public async searchUser(limit: number, offset: number, key: string): Promise<{ user: User[]; count: number }> {
     const [user, count]: [User[], number] = await UserEntity.createQueryBuilder('us')
+      .select(['us.id', 'us.firstName', 'us.lastName', 'us.address', 'us.email', 'us.phone', 'us.isManager', 'us.isActif', 'us.createdAt'])
       .where('LOWER(us.lastName) LIKE :nm', { nm: `%${key.toLowerCase()}%` })
       .orWhere('LOWER(us.firstName) LIKE :fn', { fn: `%${key.toLowerCase()}%` })
       .orWhere('LOWER(us.email) LIKE :em', { em: `%${key.toLowerCase()}%` })
