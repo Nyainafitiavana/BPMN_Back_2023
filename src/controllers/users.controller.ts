@@ -2,15 +2,22 @@ import { NextFunction, Request, Response } from 'express';
 import { CreateUserDto } from '@dtos/users.dto';
 import { User } from '@interfaces/users.interface';
 import userService from '@services/users.service';
+import BaseController from './BaseController.controller';
+import Helper from '@/utils/helper';
 
-class UsersController {
+class UsersController extends BaseController {
   public userService = new userService();
-
+  public helper = new Helper();
   public getUsers = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
-      const findAllUsersData: User[] = await this.userService.findAllUser();
+      const limit: number = +req.query.limit;
+      const page: number = +req.query.page;
+      const offset: number = await this.helper.calculOffset(limit, page);
+      const key: string = '' + req.query.key;
 
-      res.status(200).json({ data: findAllUsersData, message: 'findAll' });
+      const { user, count } = await this.userService.findAllUser(limit, offset, key);
+
+      res.status(200).json(this.response(true, 'Get All Success', user, count, limit, page));
     } catch (error) {
       next(error);
     }
@@ -21,7 +28,7 @@ class UsersController {
       const userId = Number(req.params.id);
       const findOneUserData: User = await this.userService.findUserById(userId);
 
-      res.status(200).json({ data: findOneUserData, message: 'findOne' });
+      res.status(200).json(this.response(true, 'Get All Success', findOneUserData, 1, null, null));
     } catch (error) {
       next(error);
     }
