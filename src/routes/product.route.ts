@@ -6,7 +6,7 @@ import ProductController from '@/controllers/product.controller';
 import { CreateProductDto } from '@/dtos/product.dto';
 
 class ProductRoute implements Routes {
-  public path = '/product';
+  public path = '/api/product';
   public router = Router();
   public productController = new ProductController();
 
