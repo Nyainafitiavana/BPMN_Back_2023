@@ -38,6 +38,10 @@ class AuthService extends Repository<UserEntity> {
 
     delete findUser.password;
 
+    await UserEntity.update(findUser.id, {
+      isActif: true,
+    });
+
     return { cookie, tokenData, findUser };
   }
 
@@ -46,6 +50,10 @@ class AuthService extends Repository<UserEntity> {
 
     const findUser: User = await UserEntity.findOne({ where: { email: userData.email, password: userData.password } });
     if (!findUser) throw new HttpException(409, "User doesn't exist");
+
+    await UserEntity.update(findUser.id, {
+      isActif: false,
+    });
 
     return findUser;
   }
