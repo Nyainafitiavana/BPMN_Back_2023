@@ -1,8 +1,10 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, QueryBuilder, Repository, getConnection } from 'typeorm';
 import { HttpException } from '@/exceptions/HttpException';
 import { MovementProduct } from '@/interfaces/movementProduct.interface';
 import { MovementProductEntity } from '@/entities/movementProduct.entity';
 import { CreateMovementProductDto } from '@/dtos/movementProduct.dto';
+import { ProductEntity } from '@/entities/product.entity';
+import { DetailMovementProductEntity } from '@/entities/detailMovementProduct.entity';
 
 @EntityRepository()
 class MovementProductService extends Repository<MovementProductEntity> {
@@ -48,6 +50,45 @@ class MovementProductService extends Repository<MovementProductEntity> {
     const createMovementProduct: MovementProduct = await MovementProductEntity.create({ ...movementProductData }).save();
 
     return createMovementProduct;
+  }
+
+  public async getRestStockAllProduct(): Promise<any> {
+    const queryBuilder = getConnection()
+      .createQueryBuilder()
+      .select('pr.id')
+      .addSelect('COALESCE(ent.quantity - ot.quantity, 0)', 'rest_stock')
+      .addSelect('ent.quantity', 'enter_quantity')
+      .addSelect('ot.quantity', 'out_quantity')
+      .from(ProductEntity, 'pr')
+      .leftJoin(
+        subQuery => {
+          return subQuery
+            .select('dmp.productId')
+            .addSelect('COALESCE(SUM(dmp.quantity), 0)', 'quantity')
+            .from(DetailMovementProductEntity, 'dmp')
+            .leftJoin(MovementProductEntity, 'mov', 'mov.id = dmp.movementProductId')
+            .where('mov.isEnter = :isEnter', { isEnter: true })
+            .groupBy('dmp.productId');
+        },
+        'ent',
+        'ent.productId = pr.id',
+      )
+      .leftJoin(
+        subQuery => {
+          return subQuery
+            .select('dmp.productId')
+            .addSelect('COALESCE(SUM(dmp.quantity), 0)', 'quantity')
+            .from(DetailMovementProductEntity, 'dmp')
+            .leftJoin(MovementProductEntity, 'mov', 'mov.id = dmp.movementProductId')
+            .where('mov.isEnter = :isEnter', { isEnter: false })
+            .groupBy('dmp.productId');
+        },
+        'ot',
+        'ot.productId = pr.id',
+      );
+
+    const result = await queryBuilder.getRawMany();
+    return result;
   }
 }
 

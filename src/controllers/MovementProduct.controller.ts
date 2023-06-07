@@ -69,5 +69,19 @@ class MovementProductController extends BaseController {
       next(error);
     }
   };
+
+  public getRestStockWithMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const limit: number = +req.query.limit;
+      const page: number = +req.query.page;
+      const offset: number = await this.helper.calculOffset(limit, page);
+
+      const data: any = await this.movementProductService.getRestStockAllProduct();
+
+      res.status(200).json(this.response(true, 'Get All Datas success', data, 1, limit, page));
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 export default MovementProductController;
