@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import Helper from '@utils/helper';
 import BaseController from '@controllers/BaseController.controller';
-import { ApiResponse } from '@interfaces/response.interface';
 import UnitService from '@/services/unit.service';
 import { CreateUnitDto } from '@/dtos/unit.dto';
 import { Unit } from '@/interfaces/unit.interface';
@@ -50,8 +49,7 @@ class UnitController extends BaseController {
       const unitId = Number(req.params.id);
       const findUnit: Unit = await this.unitService.getUnitById(unitId);
 
-      const data: ApiResponse = await this.response(true, 'Get All Datas success', findUnit, 1, null, null);
-      res.status(200).json({ data });
+      res.status(200).json(this.response(true, 'Get All Datas success', findUnit, 1, null, null));
     } catch (error) {
       next(error);
     }

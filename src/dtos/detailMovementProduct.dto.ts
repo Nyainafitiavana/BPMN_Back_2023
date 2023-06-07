@@ -8,5 +8,8 @@ export class CreateDetailMovementProductDto {
   public product: object;
 
   @IsNumber()
+  public priceWalk: number;
+
+  @IsNumber()
   public quantity: number;
 }

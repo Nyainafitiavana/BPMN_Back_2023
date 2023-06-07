@@ -5,6 +5,5 @@ export interface MovementProduct {
   isEnter: Boolean;
   editor: User;
   status: string;
-  priceWalk: number;
   plannedDate: string;
 }

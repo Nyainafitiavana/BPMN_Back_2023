@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsObject, IsString } from 'class-validator';
+import { IsBoolean, IsObject, IsString } from 'class-validator';
 
 export class CreateMovementProductDto {
   @IsBoolean()
@@ -6,9 +6,6 @@ export class CreateMovementProductDto {
 
   @IsObject()
   public editor: object;
-
-  @IsNumber()
-  public priceWalk: number;
 
   @IsString()
   public plannedDate: string;

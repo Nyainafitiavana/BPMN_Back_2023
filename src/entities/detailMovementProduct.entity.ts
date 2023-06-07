@@ -21,5 +21,9 @@ export class DetailMovementProductEntity extends BaseEntity implements DetailMov
 
   @Column()
   @IsNotEmpty()
+  public priceWalk: number;
+
+  @Column()
+  @IsNotEmpty()
   quantity: number;
 }

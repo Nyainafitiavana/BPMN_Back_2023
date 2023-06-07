@@ -25,10 +25,6 @@ export class MovementProductEntity extends BaseEntity implements MovementProduct
 
   @Column()
   @IsNotEmpty()
-  public priceWalk: number;
-
-  @Column()
-  @IsNotEmpty()
   public plannedDate: string;
 
   @OneToMany(() => DetailMovementProductEntity, (detail: DetailMovementProductEntity) => detail.movementProduct)

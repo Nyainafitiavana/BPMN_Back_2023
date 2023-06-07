@@ -6,9 +6,18 @@ import validateEnv from '@utils/validateEnv';
 import CategoryRoute from './routes/category.route';
 import UnitRoute from './routes/unit.route';
 import ProductRoute from './routes/product.route';
+import DetailMovementProductRoute from './routes/detailMovementProduct.route';
 
 validateEnv();
 
-const app = new App([new IndexRoute(), new UsersRoute(), new AuthRoute(), new CategoryRoute(), new UnitRoute(), new ProductRoute()]);
+const app = new App([
+  new IndexRoute(),
+  new UsersRoute(),
+  new AuthRoute(),
+  new CategoryRoute(),
+  new UnitRoute(),
+  new ProductRoute(),
+  new DetailMovementProductRoute(),
+]);
 
 app.listen();
