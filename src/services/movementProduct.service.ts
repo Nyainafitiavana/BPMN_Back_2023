@@ -1,13 +1,13 @@
-import { EntityRepository, QueryBuilder, Repository, getConnection } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import { HttpException } from '@/exceptions/HttpException';
 import { MovementProduct } from '@/interfaces/movementProduct.interface';
 import { MovementProductEntity } from '@/entities/movementProduct.entity';
 import { CreateMovementProductDto } from '@/dtos/movementProduct.dto';
-import { ProductEntity } from '@/entities/product.entity';
-import { DetailMovementProductEntity } from '@/entities/detailMovementProduct.entity';
+import Helper from '@/utils/helper';
 
 @EntityRepository()
 class MovementProductService extends Repository<MovementProductEntity> {
+  public helper = new Helper();
   public async findAllMovementProduct(
     limit: number,
     offset: number,
@@ -52,43 +52,37 @@ class MovementProductService extends Repository<MovementProductEntity> {
     return createMovementProduct;
   }
 
-  public async getRestStockAllProduct(): Promise<any> {
-    const queryBuilder = getConnection()
-      .createQueryBuilder()
-      .select('pr.id')
-      .addSelect('COALESCE(ent.quantity - ot.quantity, 0)', 'rest_stock')
-      .addSelect('ent.quantity', 'enter_quantity')
-      .addSelect('ot.quantity', 'out_quantity')
-      .from(ProductEntity, 'pr')
-      .leftJoin(
-        subQuery => {
-          return subQuery
-            .select('dmp.productId')
-            .addSelect('COALESCE(SUM(dmp.quantity), 0)', 'quantity')
-            .from(DetailMovementProductEntity, 'dmp')
-            .leftJoin(MovementProductEntity, 'mov', 'mov.id = dmp.movementProductId')
-            .where('mov.isEnter = :isEnter', { isEnter: true })
-            .groupBy('dmp.productId');
-        },
-        'ent',
-        'ent.productId = pr.id',
-      )
-      .leftJoin(
-        subQuery => {
-          return subQuery
-            .select('dmp.productId')
-            .addSelect('COALESCE(SUM(dmp.quantity), 0)', 'quantity')
-            .from(DetailMovementProductEntity, 'dmp')
-            .leftJoin(MovementProductEntity, 'mov', 'mov.id = dmp.movementProductId')
-            .where('mov.isEnter = :isEnter', { isEnter: false })
-            .groupBy('dmp.productId');
-        },
-        'ot',
-        'ot.productId = pr.id',
-      );
+  public async getRestStockAllProduct(limit: number, offset: number): Promise<{ result: object; total: number }> {
+    const query = `
+      SELECT pr."id", pr.designation, 
+      unt.designation AS unit, ct.designation as category, 
+      pr."limitStock", COALESCE(ent.quantity - ot.quantity, 0) as rest_stock, 
+      ent.quantity as enter_quantity,
+      ot.quantity as out_quantity
+      FROM product_entity pr
+      LEFT JOIN unit_entity unt ON unt."id" = pr."unitId"
+      LEFT JOIN category_entity ct ON ct."id" = pr."categoryId"
+      LEFT JOIN (
+        SELECT dmp."productId", COALESCE(SUM(dmp.quantity), 0) as quantity
+        FROM detail_movement_product_entity dmp
+        LEFT JOIN movement_product_entity mov ON mov."id" = dmp."movementProductId"
+        WHERE mov."isEnter" = true
+        GROUP BY dmp."productId"
+      ) ent ON ent."productId" = pr."id"
+      LEFT JOIN (
+        SELECT dmp."productId", COALESCE(SUM(dmp.quantity), 0) as quantity
+        FROM detail_movement_product_entity dmp
+        LEFT JOIN movement_product_entity mov ON mov."id" = dmp."movementProductId"
+        WHERE mov."isEnter" = FALSE
+        GROUP BY dmp."productId"
+      ) ot ON ot."productId" = pr."id"    
+      LIMIT $1
+      OFFSET $2;
+    `;
 
-    const result = await queryBuilder.getRawMany();
-    return result;
+    const result = await this.helper.executSQLQuery(query, limit, offset);
+    const count = await this.helper.executSQLQuery(query, null, null);
+    return { result: result, total: Object.keys(count).length };
   }
 }
 

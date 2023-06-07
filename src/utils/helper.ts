@@ -5,6 +5,7 @@ import { DataStoredInToken } from '@/interfaces/auth.interface';
 import { User } from '@/interfaces/users.interface';
 import { Request } from 'express';
 import { verify } from 'jsonwebtoken';
+import { getConnection } from 'typeorm';
 
 class Helper {
   public calculOffset = async (limit: number, page: number): Promise<number> => {
@@ -31,6 +32,13 @@ class Helper {
     const month: string = date.toLocaleString('default', { month: '2-digit' });
     const day: string = date.toLocaleString('default', { day: '2-digit' });
     return year + '-' + month + '-' + day;
+  };
+
+  public executSQLQuery = async (query: string, limit: number, offset: number): Promise<object> => {
+    const connection = getConnection();
+    const result = await connection.query(query, [limit, offset]);
+
+    return result;
   };
 }
 export default Helper;

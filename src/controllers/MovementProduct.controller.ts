@@ -76,9 +76,9 @@ class MovementProductController extends BaseController {
       const page: number = +req.query.page;
       const offset: number = await this.helper.calculOffset(limit, page);
 
-      const data: any = await this.movementProductService.getRestStockAllProduct();
+      const { result, total } = await this.movementProductService.getRestStockAllProduct(limit, offset);
 
-      res.status(200).json(this.response(true, 'Get All Datas success', data, 1, limit, page));
+      res.status(200).json(this.response(true, 'Get All Datas success', result, total, limit, page));
     } catch (error) {
       next(error);
     }
