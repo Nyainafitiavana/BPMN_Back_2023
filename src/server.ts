@@ -7,6 +7,7 @@ import CategoryRoute from './routes/category.route';
 import UnitRoute from './routes/unit.route';
 import ProductRoute from './routes/product.route';
 import DetailMovementProductRoute from './routes/detailMovementProduct.route';
+import MovementProductRoute from './routes/movementProduct.route';
 
 validateEnv();
 
@@ -18,6 +19,7 @@ const app = new App([
   new UnitRoute(),
   new ProductRoute(),
   new DetailMovementProductRoute(),
+  new MovementProductRoute(),
 ]);
 
 app.listen();

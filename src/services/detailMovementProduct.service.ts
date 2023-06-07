@@ -11,6 +11,7 @@ class DetailMovementProductService extends Repository<DetailMovementProductEntit
     offset: number,
   ): Promise<{ detailMovementProduct: DetailMovementProduct[]; count: number }> {
     const [detailMovementProduct, count]: [DetailMovementProduct[], number] = await DetailMovementProductEntity.createQueryBuilder('qb')
+      .leftJoinAndSelect('qb.movementProduct', 'mp')
       .where('qb.movementProduct = :movementId')
       .setParameter('movementId', movementId)
       .limit(limit ? limit : 0)
@@ -21,10 +22,19 @@ class DetailMovementProductService extends Repository<DetailMovementProductEntit
     return { detailMovementProduct, count };
   }
 
-  public async createDetailMovementProduct(detailMovementProductData: CreateDetailMovementProductDto): Promise<DetailMovementProduct> {
-    const createDetailMovementProduct: DetailMovementProduct = await DetailMovementProductEntity.create({ ...detailMovementProductData }).save();
+  public async createDetailMovementProduct(req: any, movementId: number): Promise<object> {
+    req.body.detailMovement.map(async function (item) {
+      const detailMovementProductData: CreateDetailMovementProductDto = {
+        movementProduct: { id: movementId },
+        product: item.product,
+        priceWalk: item.priceWalk,
+        quantity: item.quantity,
+      };
 
-    return createDetailMovementProduct;
+      await DetailMovementProductEntity.create({ ...detailMovementProductData }).save();
+    });
+
+    return { success: true };
   }
 }
 

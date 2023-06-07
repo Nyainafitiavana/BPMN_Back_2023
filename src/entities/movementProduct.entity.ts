@@ -1,5 +1,5 @@
 import { IsNotEmpty } from 'class-validator';
-import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne } from 'typeorm';
+import { BaseEntity, Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, CreateDateColumn } from 'typeorm';
 import { ProductEntity } from './product.entity';
 import { MovementProduct } from '@/interfaces/movementProduct.interface';
 import { UserEntity } from './users.entity';
@@ -21,7 +21,7 @@ export class MovementProductEntity extends BaseEntity implements MovementProduct
 
   @Column()
   @IsNotEmpty()
-  public status: string;
+  public status: number;
 
   @Column()
   @IsNotEmpty()
@@ -29,4 +29,8 @@ export class MovementProductEntity extends BaseEntity implements MovementProduct
 
   @OneToMany(() => DetailMovementProductEntity, (detail: DetailMovementProductEntity) => detail.movementProduct)
   public detail: DetailMovementProductEntity[];
+
+  @Column()
+  @IsNotEmpty()
+  date: string;
 }

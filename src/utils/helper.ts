@@ -17,7 +17,7 @@ class Helper {
       const Authorization = req.cookies['Authorization'] || (req.header('Authorization') ? req.header('Authorization').split('Bearer ')[1] : null);
       const secretKey: string = SECRET_KEY;
       const { id } = (await verify(Authorization, secretKey)) as DataStoredInToken;
-      const findUser: User = await UserEntity.findOne({ where: { id: id }, relations: ['pharmacy', 'contact', 'userStatus', 'status'] });
+      const findUser: User = await UserEntity.findOne({ where: { id: id } });
 
       return findUser;
     } catch (error) {

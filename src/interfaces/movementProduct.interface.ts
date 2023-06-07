@@ -4,6 +4,7 @@ export interface MovementProduct {
   id: number;
   isEnter: Boolean;
   editor: User;
-  status: string;
+  status: number;
   plannedDate: string;
+  date: string;
 }

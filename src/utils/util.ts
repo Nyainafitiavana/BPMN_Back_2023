@@ -17,3 +17,9 @@ export const isEmpty = (value: string | number | object): boolean => {
     return false;
   }
 };
+
+export const ValueStatus = {
+  InProgress: 1,
+  ToValidate: 2,
+  Validated: 3,
+};
