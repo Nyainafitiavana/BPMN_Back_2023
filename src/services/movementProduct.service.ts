@@ -66,14 +66,14 @@ class MovementProductService extends Repository<MovementProductEntity> {
         SELECT dmp."productId", COALESCE(SUM(dmp.quantity), 0) as quantity
         FROM detail_movement_product_entity dmp
         LEFT JOIN movement_product_entity mov ON mov."id" = dmp."movementProductId"
-        WHERE mov."isEnter" = true
+        WHERE mov."isEnter" = true AND mov.status = 3
         GROUP BY dmp."productId"
       ) ent ON ent."productId" = pr."id"
       LEFT JOIN (
         SELECT dmp."productId", COALESCE(SUM(dmp.quantity), 0) as quantity
         FROM detail_movement_product_entity dmp
         LEFT JOIN movement_product_entity mov ON mov."id" = dmp."movementProductId"
-        WHERE mov."isEnter" = FALSE
+        WHERE mov."isEnter" = FALSE AND mov.status = 3
         GROUP BY dmp."productId"
       ) ot ON ot."productId" = pr."id"    
       LIMIT $1
