@@ -83,5 +83,19 @@ class MovementProductController extends BaseController {
       next(error);
     }
   };
+
+  public getRuptureStockWithMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const limit: number = +req.query.limit;
+      const page: number = +req.query.page;
+      const offset: number = await this.helper.calculOffset(limit, page);
+
+      const { result, total } = await this.movementProductService.getRuptureStock(limit, offset);
+
+      res.status(200).json(this.response(true, 'Get All Datas success', result, total, limit, page));
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 export default MovementProductController;

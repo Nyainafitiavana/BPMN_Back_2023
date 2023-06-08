@@ -15,6 +15,7 @@ class MovementProductRoute implements Routes {
   private initializeRoutes() {
     this.router.get(`${this.path}`, authMiddleware, this.movementProductController.getAllMovementProduct);
     this.router.get(`/api/rest-stock`, authMiddleware, this.movementProductController.getRestStockWithMovement);
+    this.router.get(`/api/rupture-stock`, authMiddleware, this.movementProductController.getRuptureStockWithMovement);
     this.router.post(`${this.path}`, authMiddleware, this.movementProductController.createMovementProduct);
     this.router.delete(`${this.path}/:id(\\d+)`, authMiddleware, this.movementProductController.deleteMovementProduct);
   }
