@@ -57,8 +57,8 @@ class MovementProductService extends Repository<MovementProductEntity> {
       SELECT pr."id", pr.designation, 
       unt.designation AS unit, ct.designation as category, 
       pr."limitStock", COALESCE(COALESCE(ent.quantity, 0) - COALESCE(ot.quantity, 0), 0) as rest_stock, 
-      ent.quantity as enter_quantity,
-      ot.quantity as out_quantity
+      COALESCE(ent.quantity, 0) as enter_quantity,
+      COALESCE(ot.quantity, 0) as out_quantity
       FROM product_entity pr
       LEFT JOIN unit_entity unt ON unt."id" = pr."unitId"
       LEFT JOIN category_entity ct ON ct."id" = pr."categoryId"
@@ -90,8 +90,8 @@ class MovementProductService extends Repository<MovementProductEntity> {
     SELECT pr."id", pr.designation, 
     unt.designation AS unit, ct.designation as category, 
     pr."limitStock", COALESCE(COALESCE(ent.quantity, 0) - COALESCE(ot.quantity, 0), 0) as rest_stock, 
-    ent.quantity as enter_quantity,
-    ot.quantity as out_quantity
+    COALESCE(ent.quantity, 0) as enter_quantity,
+    COALESCE(ot.quantity, 0) as out_quantity
     FROM product_entity pr
     LEFT JOIN unit_entity unt ON unt."id" = pr."unitId"
     LEFT JOIN category_entity ct ON ct."id" = pr."categoryId"
