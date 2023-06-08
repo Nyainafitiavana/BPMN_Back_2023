@@ -22,4 +22,5 @@ export const ValueStatus = {
   InProgress: 1,
   ToValidate: 2,
   Validated: 3,
+  Rejected: 4,
 };

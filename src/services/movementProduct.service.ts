@@ -4,6 +4,7 @@ import { MovementProduct } from '@/interfaces/movementProduct.interface';
 import { MovementProductEntity } from '@/entities/movementProduct.entity';
 import { CreateMovementProductDto } from '@/dtos/movementProduct.dto';
 import Helper from '@/utils/helper';
+import { ValueStatus } from '@/utils/util';
 
 @EntityRepository()
 class MovementProductService extends Repository<MovementProductEntity> {
@@ -117,6 +118,36 @@ class MovementProductService extends Repository<MovementProductEntity> {
     const result = await this.helper.executSQLQuery(query, limit, offset);
     const count = await this.helper.executSQLQuery(query, null, null);
     return { result: result, total: Object.keys(count).length };
+  }
+
+  public async getLateCommand(limit: number, offset: number, dateNow: string): Promise<{ result: MovementProduct[]; count: number }> {
+    const [result, count]: [MovementProduct[], number] = await MovementProductEntity.createQueryBuilder('qb')
+      .where('qb.plannedDate < :dateNow')
+      .andWhere('qb.status != :statusId')
+      .andWhere('qb.isEnter = :value')
+      .setParameter('dateNow', dateNow)
+      .setParameter('statusId', 3) // validated
+      .setParameter('value', false) // it's out of stock
+      .limit(limit ? limit : 0)
+      .offset(offset ? offset : 0)
+      .orderBy('qb.id', 'ASC')
+      .getManyAndCount();
+
+    return { result, count };
+  }
+
+  public async validateMovement(movementId: number): Promise<MovementProduct> {
+    await MovementProductEntity.update(movementId, { status: ValueStatus.Validated });
+    const movement: MovementProduct = await MovementProductEntity.findOne(movementId);
+
+    return movement;
+  }
+
+  public async rejectedMovement(movementId: number): Promise<MovementProduct> {
+    await MovementProductEntity.update(movementId, { status: ValueStatus.Rejected });
+    const movement: MovementProduct = await MovementProductEntity.findOne(movementId);
+
+    return movement;
   }
 }
 

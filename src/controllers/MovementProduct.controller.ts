@@ -97,5 +97,42 @@ class MovementProductController extends BaseController {
       next(error);
     }
   };
+
+  public getLateCommande = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const limit: number = +req.query.limit;
+      const page: number = +req.query.page;
+      const offset: number = await this.helper.calculOffset(limit, page);
+      const dateNow: string = await this.helper.getDateNowString();
+
+      const { result, count } = await this.movementProductService.getLateCommand(limit, offset, dateNow);
+
+      res.status(200).json(this.response(true, 'Get All Datas success', result, count, limit, page));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public validatedMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const movementId = Number(req.params.id);
+      const movement: MovementProduct = await this.movementProductService.validateMovement(movementId);
+
+      res.status(200).json(this.response(true, 'Get All Datas success', movement, 1, null, null));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  public rejectedMovement = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    try {
+      const movementId = Number(req.params.id);
+      const movement: MovementProduct = await this.movementProductService.rejectedMovement(movementId);
+
+      res.status(200).json(this.response(true, 'Get All Datas success', movement, 1, null, null));
+    } catch (error) {
+      next(error);
+    }
+  };
 }
 export default MovementProductController;
