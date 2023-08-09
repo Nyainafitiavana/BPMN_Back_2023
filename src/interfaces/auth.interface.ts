@@ -13,3 +13,15 @@ export interface TokenData {
 export interface RequestWithUser extends Request {
   user: User;
 }
+
+export interface ResponseLogin {
+  status: number;
+  message: string;
+  data: DataLogin | {};
+}
+
+export interface DataLogin {
+  cookie: string;
+  tokenData: TokenData;
+  findUser: User;
+}

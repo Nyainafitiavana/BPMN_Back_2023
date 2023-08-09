@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { CreateLoginDto, CreateUserDto } from '@dtos/users.dto';
-import { RequestWithUser } from '@interfaces/auth.interface';
+import { DataLogin, RequestWithUser, ResponseLogin } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import AuthService from '@services/auth.service';
 
@@ -21,10 +21,11 @@ class AuthController {
   public logIn = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const loginData: CreateLoginDto = req.body;
-      const { cookie, tokenData, findUser } = await this.authService.login(loginData);
+      const resutlt: ResponseLogin = await this.authService.login(loginData);
 
-      res.setHeader('Set-Cookie', [cookie]);
-      res.status(200).json({ data: findUser, token: tokenData, message: 'login' });
+      const dataLogin: DataLogin = resutlt.data as DataLogin;
+      res.setHeader('Set-Cookie', [dataLogin.cookie]);
+      res.status(resutlt.status).json(resutlt);
     } catch (error) {
       next(error);
     }

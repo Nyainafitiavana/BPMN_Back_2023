@@ -5,7 +5,7 @@ import { SECRET_KEY } from '@config';
 import { CreateLoginDto, CreateUserDto } from '@dtos/users.dto';
 import { UserEntity } from '@entities/users.entity';
 import { HttpException } from '@exceptions/HttpException';
-import { DataStoredInToken, TokenData } from '@interfaces/auth.interface';
+import { DataLogin, DataStoredInToken, ResponseLogin, TokenData } from '@interfaces/auth.interface';
 import { User } from '@interfaces/users.interface';
 import { isEmpty } from '@utils/util';
 
@@ -24,25 +24,34 @@ class AuthService extends Repository<UserEntity> {
     return createUserData;
   }
 
-  public async login(loginData: CreateLoginDto): Promise<{ cookie: string; tokenData: TokenData; findUser: User }> {
-    if (isEmpty(loginData)) throw new HttpException(400, 'userData is empty');
-
+  public async login(loginData: CreateLoginDto): Promise<ResponseLogin> {
     const findUser: User = await UserEntity.findOne({ where: { email: loginData.email } });
-    if (!findUser) throw new HttpException(409, `This email ${loginData.email} was not found`);
+    let response: ResponseLogin;
 
-    const isPasswordMatching: boolean = await compare(loginData.password, findUser.password);
-    if (!isPasswordMatching) throw new HttpException(409, 'Password not matching');
+    if (!findUser) {
+      response = { status: 409, message: `Cet e-mail ${loginData.email} n'a pas été trouvé`, data: {} };
+    } else {
+      const isPasswordMatching: boolean = await compare(loginData.password, findUser.password);
 
-    const tokenData = this.createToken(findUser);
-    const cookie = this.createCookie(tokenData);
+      if (!isPasswordMatching) {
+        response = { status: 409, message: 'Mot de passe incorrect !', data: {} };
+      } else {
+        const tokenData = this.createToken(findUser);
+        const cookie = this.createCookie(tokenData);
 
-    delete findUser.password;
+        delete findUser.password;
 
-    await UserEntity.update(findUser.id, {
-      isActif: true,
-    });
+        await UserEntity.update(findUser.id, {
+          isActif: true,
+        });
 
-    return { cookie, tokenData, findUser };
+        const data: DataLogin = { cookie, tokenData, findUser };
+
+        response = { status: 200, message: 'login success', data };
+      }
+    }
+
+    return response;
   }
 
   public async logout(userData: User): Promise<User> {
